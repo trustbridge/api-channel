@@ -16,7 +16,7 @@ Channel implementations can be classified in a variety of ways, for example by t
 | Duplex | Decentralised | Public | Etherium Channel |
 | Duplex | Decentralised | Private | Hyperledger Channel |
 | Duplex | Centralised | Private | DB Channel |
-| Simplex | Decentralised | Private | ** This API Channel Example** |
+| Simplex | Decentralised | Private | **This API Channel Example** |
 
 This repository demonstrates the Simplex channel pattern.
 
