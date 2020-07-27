@@ -1,0 +1,38 @@
+var/
+.DS_Store
+.env
+.flaskenv
+*.pyc
+*.pyo
+env/
+env*
+dist/
+build/
+*.egg
+*.egg-info/
+_mailinglist
+.tox/
+.cache/
+.pytest_cache/
+.idea/
+docs/_build/
+.vscode
+*~
+
+# Coverage reports
+htmlcov/
+.coverage
+.coverage.*
+*,cover
+
+# Flask-Migrate
+!env.py
+
+# local environment files
+/docker/api_*_local.env
+/docker/shared_db_*_local.env
+
+# test results
+/api/tests/results.xml
+
+/docker/volumes/
