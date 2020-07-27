@@ -1,0 +1,12 @@
+Flask==1.1.2
+python-decouple==3.3
+Flask-Script==2.0.6
+webargs==6.1.0
+
+# test
+pytest==5.4.3
+pytest-flask==1.0.0
+freezegun==0.3.15
+responses==0.10.15
+
+git+https://github.com/trustbridge/libtrustbridge#egg=libtrustbridge

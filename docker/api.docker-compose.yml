@@ -1,0 +1,116 @@
+version: '3.5'
+
+x-services:
+  base: &base-api
+    build:
+      context: ../
+      dockerfile: docker/api.Dockerfile
+    depends_on:
+      - elasticmq
+      - minio
+    environment:
+      - SERVICE_URL
+      - DATABASE_URI
+      - ENDPOINT
+      - FOREIGN_ENDPOINT_URL
+      - IGL_SUBSCRIPTIONS_REPO_HOST
+      - IGL_SUBSCRIPTIONS_REPO_PORT
+      - IGL_SUBSCRIPTIONS_REPO_ACCESS_KEY
+      - IGL_SUBSCRIPTIONS_REPO_SECRET_KEY
+      - IGL_SUBSCRIPTIONS_REPO_USE_SSL
+      - IGL_NOTIFICATIONS_REPO_HOST
+      - IGL_NOTIFICATIONS_REPO_PORT
+      - IGL_NOTIFICATIONS_REPO_REGION
+      - IGL_NOTIFICATIONS_REPO_ACCESS_KEY
+      - IGL_NOTIFICATIONS_REPO_SECRET_KEY
+      - IGL_NOTIFICATIONS_REPO_USE_SSL
+      - IGL_DELIVERY_OUTBOX_REPO_HOST
+      - IGL_DELIVERY_OUTBOX_REPO_PORT
+      - IGL_DELIVERY_OUTBOX_REPO_REGION
+      - IGL_DELIVERY_OUTBOX_REPO_ACCESS_KEY
+      - IGL_DELIVERY_OUTBOX_REPO_SECRET_KEY
+      - IGL_DELIVERY_OUTBOX_REPO_USE_SSL
+      - SENTRY_DSN
+    networks:
+      - igl_local_devnet
+    volumes:
+      - ..:/src
+
+
+networks:
+  igl_local_devnet:
+    driver: bridge
+    external: true
+
+
+services:
+  minio:
+    # https://docs.min.io/docs/minio-docker-quickstart-guide.html
+    image: minio/minio
+    command: server /minio-data
+    environment:
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-minio_access_key}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-minio_secret_key}
+      MINIO_HTTP_TRACE: /minio-data/requests.log
+    # we don't have to expose it directly to the host machine for our demo,
+    # but it's useful for starting service on the host
+    ports: ['${MINIO_BIND_HOST_PORT}:9000']
+    restart: on-failure
+    networks:
+      - igl_local_devnet
+    volumes:
+      - ./volumes/${COMPOSE_PROJECT_NAME}/var/minio-data:/minio-data
+    logging:
+      driver: none
+
+  elasticmq:
+    image: softwaremill/elasticmq
+    ports: ['${ELASTICMQ_BIND_HOST_PORT}:9324']
+    networks:
+      - igl_local_devnet
+    volumes: ['./elasticmq.conf:/opt/elasticmq.conf']
+    restart: on-failure
+    logging:
+      driver: none
+
+
+  api:
+    <<: *base-api
+    ports: ['$API_BIND_HOST_PORT:5000']
+    depends_on:
+      # merge keys don't merge arrays, so we need to repeat elasticmq and minio here
+      - elasticmq
+      - minio
+      - callback_spreader
+      - callback_delivery
+    command: "python manage.py runserver -h 0.0.0.0"
+    restart: on-failure
+
+  callback_spreader:
+    <<: *base-api
+    command: "python manage.py run_callback_spreader"
+    restart: on-failure
+
+  callback_delivery:
+    <<: *base-api
+    command: "python manage.py run_callback_delivery"
+    restart: on-failure
+
+  tests:
+    <<: *base-api
+    container_name: tests
+    command: bash -c "cd /src && pytest -o junit_family=xunit1 --junitxml=/src/api/tests/results.xml"
+    environment:
+      TESTING: 'True'
+
+  test_callback_server:
+    ports: ['$TEST_CALLBACK_SERVER_BIND_HOST_PORT:5000']
+    build:
+      context: ../
+      dockerfile: docker/test_callback_servder.Dockerfile
+    command: flask run --host=0.0.0.0
+    environment:
+      FLASK_APP: callback_test_server
+
+    volumes:
+      - ..:/src
