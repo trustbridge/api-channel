@@ -30,9 +30,11 @@ htmlcov/
 
 # local environment files
 /docker/api_*_local.env
-/docker/shared_db_*_local.env
 
 # test results
 /api/tests/results.xml
 
 /docker/volumes/
+
+/.venv-pie/
+/pie.bat
