@@ -107,7 +107,7 @@ services:
     ports: ['$TEST_CALLBACK_SERVER_BIND_HOST_PORT:5000']
     build:
       context: ../
-      dockerfile: docker/test_callback_servder.Dockerfile
+      dockerfile: docker/test_callback_server.Dockerfile
     command: flask run --host=0.0.0.0
     environment:
       FLASK_APP: callback_test_server
