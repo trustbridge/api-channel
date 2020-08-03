@@ -101,9 +101,8 @@ pipeline {
                     steps {
                         dir("${env.DOCKER_BUILD_DIR}/test/api-channel/")  {
                             sh '''#!/bin/bash
+                                export COMPOSE_PROJECT_NAME=au_sg_api_channel_au_endpoint
                                 python pie.py test.start
-                                python pie.py test.send_message
-                                python pie.py test.subscribe
                             '''
                         }
                     }
