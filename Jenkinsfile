@@ -66,6 +66,11 @@ pipeline {
 
                             sh '''#!/bin/bash
                                 python3 pie.py -R
+
+                                if [[ -z "${docker network ls --filter name=igl_local_devnet --quiet}" ]]; then
+                                    docker network create igl_local_devnet
+                                fi
+
                                 python pie.py api.build
 
                                 export COMPOSE_PROJECT_NAME=au_sg_api_channel_sg_endpoint
@@ -80,7 +85,7 @@ pipeline {
 
                 stage('Run Testing') {
                     steps {
-                        dir("${env.DOCKER_BUILD_DIR}/test/api-channel")  {
+                        dir("${env.DOCKER_BUILD_DIR}/test/api-channel/")  {
                             sh '''#!/bin/bash
                                 python pie.py test.start
                                 python pie.py test.send_message
