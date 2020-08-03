@@ -59,11 +59,6 @@ pipeline {
 
             stages {
                 stage('Setup') {
-                    when {
-                        changeRequest()
-                    }
-
-
                     steps {
                         dir("${env.DOCKER_BUILD_DIR}/test/api-channel/") {
 
@@ -71,6 +66,7 @@ pipeline {
 
                             sh '''#!/bin/bash
                                 echo Starting Shared DB
+                                python3 pie.py -R
                                 python3 pie.py api.build
                                 python3 pie.py api.start
                             '''
