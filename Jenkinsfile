@@ -67,9 +67,14 @@ pipeline {
                             sh '''#!/bin/bash
                                 python3 pie.py -R
 
+                                # Create external network
                                 if [[ -z "${docker network ls --filter name=igl_local_devnet --quiet}" ]]; then
                                     docker network create igl_local_devnet
                                 fi
+
+                                #Setup minio staging location
+                                mkdir -p ./volumes/
+                                chmod 777 ./volumes/
 
                                 python pie.py api.build
 
