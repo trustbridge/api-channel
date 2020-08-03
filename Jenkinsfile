@@ -54,7 +54,7 @@ pipeline {
             }
 
             environment {
-                COMPOSE_PROJECT_NAME="au_sg_chanel"
+                COMPOSE_PROJECT_NAME="au_sg_api_channel_sg_endpoint"
             }
 
             stages {
