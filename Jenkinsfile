@@ -72,16 +72,20 @@ pipeline {
                                 fi
 
                                 #Setup minio staging location
-                                mkdir -p --mode=u+rwx,g+rs,g+wrwx,o+rwx "${DOCKER_BUILD_DIR}/test/api-channel/docker/volumes/"
-                                mkdir -p "${DOCKER_BUILD_DIR}/test/api-channel/docker/volumes/something"
-                                ls -la "${DOCKER_BUILD_DIR}/test/api-channel/docker/volumes/"
+
 
                                 python pie.py -R
                                 export COMPOSE_PROJECT_NAME=au_sg_api_channel_sg_endpoint
+
+                                mkdir -p --mode=u+rwx,g+rwxs,o+rwx "${DOCKER_BUILD_DIR}/test/api-channel/docker/volumes/${COMPOSE_PROJECT_NAME}/var/minio-data/"
+
                                 python pie.py api.build
                                 python pie.py api.start
 
                                 export COMPOSE_PROJECT_NAME=au_sg_api_channel_au_endpoint
+
+                                mkdir -p --mode=u+rwx,g+rwxs,o+rwx "${DOCKER_BUILD_DIR}/test/api-channel/docker/volumes/${COMPOSE_PROJECT_NAME}/var/minio-data/"
+
                                 python pie.py api.build
 		                        python pie.py api.start
                             '''
