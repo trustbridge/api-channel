@@ -76,8 +76,6 @@ pipeline {
                                 mkdir -p ./volumes/
                                 chmod 777 ./volumes/
 
-                                python pie.py api.build
-
                                 export COMPOSE_PROJECT_NAME=au_sg_api_channel_sg_endpoint
                                 python pie.py api.start
 
