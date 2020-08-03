@@ -62,7 +62,7 @@ pipeline {
                     steps {
                         dir("${env.DOCKER_BUILD_DIR}/test/api-channel/") {
 
-                            echp "Starting API Channel"
+                            echo "Starting API Channel"
 
                             sh '''#!/bin/bash
                                 python3 pie.py -R
