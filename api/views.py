@@ -17,6 +17,9 @@ from webargs import fields
 from webargs.flaskparser import use_kwargs
 
 from api import use_cases
+from api.models import Message, MessageSchema
+from api.repos import ChannelQueueRepo, ChannelRepo
+from api.use_cases import ReceiveMessageUseCase
 
 blueprint = Blueprint('views', __name__)
 logger = logging.getLogger(__name__)
@@ -44,19 +47,24 @@ def index():
 
 @blueprint.route('/messages', methods=['POST'])
 def post_message():
-    response = requests.post(url=(current_app.config['FOREIGN_ENDPOINT_URL']), data=request.data)
-    if response.status_code == 200:
-        return JsonResponse({'status': 'delivered'}, status=200)
-
-    logger.error("Foreign endpoint responded with non-OK response (%d): %r", response.status_code, response.text)
-    return JsonResponse({'status': 'rejected'}, status=200)
+    message = Message(payload=json.loads(request.data))
+    channel_repo = ChannelRepo(current_app.config['CHANNEL_REPO_CONF'])
+    channel_queue_repo = ChannelQueueRepo(current_app.config['CHANNEL_QUEUE_REPO_CONF'])
+    use_case = ReceiveMessageUseCase(channel_repo, channel_queue_repo)
+    use_case.receive(message)
+    message_data = MessageSchema().dump(message)
+    return JsonResponse(message_data, status=200)
 
 
 @blueprint.route('/messages/<id>')
 @use_kwargs({'fields': fields.DelimitedList(fields.Str())}, location="querystring")
 def get_message(id, fields=None):
     if fields == ['status']:
-        return JsonResponse({'status': 'delivered'}, status=200)
+        channel_repo = ChannelRepo(current_app.config['CHANNEL_REPO_CONF'])
+        message = channel_repo.get_message(id)
+        if message:
+            message_data = MessageSchema().dump(message)
+            return JsonResponse({'status': message_data['status']}, status=200)
     return Response(response="{}", mimetype="application/json")
 
 

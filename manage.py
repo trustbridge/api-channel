@@ -9,6 +9,7 @@ app = create_app(config_object=Config())
 manager = Manager(app)
 
 manager.add_command("runserver", Server())
+manager.add_command('run_send_message_processor', commands.RunSendMessageProcessorCommand)
 manager.add_command('run_callback_spreader', commands.RunCallbackSpreaderProcessorCommand)
 manager.add_command('run_callback_delivery', commands.RunCallbackDeliveryProcessorCommand)
 

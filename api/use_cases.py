@@ -2,10 +2,78 @@ import logging
 import random
 
 import requests
+from libtrustbridge.utils import get_retry_time
 from libtrustbridge.websub import repos
 from libtrustbridge.websub.domain import Pattern
 
+from api.models import MessageStatus, Message
+from api.repos import ChannelRepo, ChannelQueueRepo
+
 logger = logging.getLogger(__name__)
+
+
+class ReceiveMessageUseCase:
+    def __init__(self, channel_repo: ChannelRepo, channel_queue_repo: ChannelQueueRepo):
+        self.channel_repo = channel_repo
+        self.queue_repo = channel_queue_repo
+
+    def receive(self, message: Message):
+        message = self.channel_repo.save_message(message)
+        self.queue_repo.enqueue(str(message.id))
+        return message
+
+
+class SendMessageFailure(Exception):
+    pass
+
+
+class SendMessageToForeignUseCase:
+    def __init__(self, foreign_endpoint):
+        self.foreign_endpoint = foreign_endpoint
+
+    def send(self, message: Message):
+        response = requests.post(url=self.foreign_endpoint, json=message.payload)
+        if response.status_code == 200:
+            message.status = MessageStatus.DELIVERED
+            return
+
+        raise SendMessageFailure("Foreign endpoint responded with non-OK response (%d): %r" % (response.status_code, response.text))
+
+
+class ProcessMessageUseCase:
+    """
+    Given new job appears in the queue, get message from the repo and try to send it
+    """
+    MAX_ATTEMPTS = 3
+
+    def __init__(self, channel_repo: ChannelRepo, channel_queue_repo: ChannelQueueRepo, foreign_endpoint):
+        self.channel_repo = channel_repo
+        self.queue_repo = channel_queue_repo
+        self.use_case = SendMessageToForeignUseCase(foreign_endpoint)
+
+    def execute(self):
+        job = self.queue_repo.get_job()
+        if not job:
+            return
+        return self.process(*job)
+
+    def process(self, job_id, payload):
+        message_id = payload['message_id']
+        attempt = payload['retry']
+
+        message = self.channel_repo.get_message(message_id)
+        logger.info("Processing message with message_id [%s], attempt: %d,  %r", message_id, attempt, message)
+        if message.status == MessageStatus.DELIVERED:
+            return
+
+        try:
+            self.use_case.send(message)
+            self.channel_repo.save_message(message)
+        except SendMessageFailure:
+            logger.info("[%s] sending message failed", job_id)
+            if attempt < self.MAX_ATTEMPTS:
+                logger.info("[%s] re-schedule sending message", job_id)
+                self.queue_repo.enqueue(message_id, attempt + 1)
 
 
 class SubscriptionRegisterUseCase:
@@ -183,7 +251,7 @@ class DeliverCallbackUseCase:
     def _retry(self, subscribe_url, payload, attempt):
         logger.info("Delivery failed, re-schedule it")
         job = {'s': subscribe_url, 'payload': payload, 'retry': attempt + 1}
-        self.delivery_outbox.post_job(job, delay_seconds=self._get_retry_time(attempt))
+        self.delivery_outbox.post_job(job, delay_seconds=get_retry_time(attempt))
 
     def _deliver_notification(self, url, payload):
         """
