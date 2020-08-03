@@ -72,8 +72,11 @@ pipeline {
                                 fi
 
                                 #Setup minio staging location
-                                mkdir -p docker/volumes/
-                                chmod 777 docker/volumes/
+                                mkdir -p ./docker/volumes/
+                                chmod 777 ./docker/volumes/
+
+                                pwd
+                                ls -la ./
 
                                 ls -la /temp/docker/trustbridge/jenkins-api-channel-PR-3-13/test/api-channel/docker/volumes/
 
