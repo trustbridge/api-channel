@@ -77,9 +77,11 @@ pipeline {
 
                                 python pie.py -R
                                 export COMPOSE_PROJECT_NAME=au_sg_api_channel_sg_endpoint
-                                python pie.py -R api.start
+                                python pie.py api.build
+                                python pie.py api.start
 
                                 export COMPOSE_PROJECT_NAME=au_sg_api_channel_au_endpoint
+                                python pie.py api.build
 		                        python pie.py api.start
                             '''
                         }
