@@ -73,12 +73,8 @@ pipeline {
 
                                 #Setup minio staging location
                                 mkdir -p  "${DOCKER_BUILD_DIR}/test/api-channel/docker/volumes/"
-                                chmod 777 "${DOCKER_BUILD_DIR}/test/api-channel/docker/volumes/"
-
-                                pwd
-                                ls -la docker/
-
-                                ls -la /temp/docker/trustbridge/jenkins-api-channel-PR-3-13/test/api-channel/docker/volumes/
+                                chmod ugo+rwx "${DOCKER_BUILD_DIR}/test/api-channel/docker/volumes/"
+                                chmod g+s "${DOCKER_BUILD_DIR}/test/api-channel/docker/volumes/"
 
                                 python pie.py -R
                                 export COMPOSE_PROJECT_NAME=au_sg_api_channel_sg_endpoint
