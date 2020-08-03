@@ -54,7 +54,7 @@ pipeline {
             }
 
             environment {
-                COMPOSE_PROJECT_NAME="${JOB_BASE_NAME}_au_sg_chanel"
+                COMPOSE_PROJECT_NAME="au_sg_chanel"
             }
 
             stages {
@@ -62,10 +62,9 @@ pipeline {
                     steps {
                         dir("${env.DOCKER_BUILD_DIR}/test/api-channel/") {
 
-                            checkout scm
+                            echp "Starting API Channel"
 
                             sh '''#!/bin/bash
-                                echo Starting Shared DB
                                 python3 pie.py -R
                                 python3 pie.py api.build
                                 python3 pie.py api.start
