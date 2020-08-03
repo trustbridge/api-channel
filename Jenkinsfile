@@ -78,7 +78,7 @@ pipeline {
                                 export COMPOSE_PROJECT_NAME=au_sg_api_channel_sg_endpoint
 
                                 mkdir -p --mode=u+rwx,g+rwxs,o+rwx "${DOCKER_BUILD_DIR}/test/api-channel/docker/volumes/${COMPOSE_PROJECT_NAME}/var/minio-data/.minio.sys"
-                                ls -la ${DOCKER_BUILD_DIR}/test/api-channel/docker/volumes/${COMPOSE_PROJECT_NAME}/var/minio-data/
+                                touch ${DOCKER_BUILD_DIR}/test/api-channel/docker/volumes/${COMPOSE_PROJECT_NAME}/var/minio-data/.minio.sys/format.json
 
                                 python pie.py api.build
                                 python pie.py api.start
@@ -86,6 +86,7 @@ pipeline {
                                 export COMPOSE_PROJECT_NAME=au_sg_api_channel_au_endpoint
 
                                 mkdir -p --mode=u+rwx,g+rwxs,o+rwx "${DOCKER_BUILD_DIR}/test/api-channel/docker/volumes/${COMPOSE_PROJECT_NAME}/var/minio-data/.minio.sys"
+                                touch ${DOCKER_BUILD_DIR}/test/api-channel/docker/volumes/${COMPOSE_PROJECT_NAME}/var/minio-data/.minio.sys/format.json
 
                                 python pie.py api.build
 		                        python pie.py api.start
