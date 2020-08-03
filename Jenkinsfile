@@ -67,7 +67,7 @@ pipeline {
                             sh '''#!/bin/bash
 
                                 # Create external network
-                                if [[ -z "${docker network ls --filter name=igl_local_devnet --quiet}" ]]; then
+                                if [[ -z "$(docker network ls --filter name=igl_local_devnet --quiet)" ]]; then
                                     docker network create igl_local_devnet
                                 fi
 
@@ -75,6 +75,7 @@ pipeline {
                                 mkdir -p ./volumes/
                                 chmod 777 ./volumes/
 
+                                python pie.py -R
                                 export COMPOSE_PROJECT_NAME=au_sg_api_channel_sg_endpoint
                                 python pie.py -R api.start
 
