@@ -65,7 +65,6 @@ pipeline {
                             echo "Starting API Channel"
 
                             sh '''#!/bin/bash
-                                python3 pie.py -R
 
                                 # Create external network
                                 if [[ -z "${docker network ls --filter name=igl_local_devnet --quiet}" ]]; then
@@ -77,7 +76,7 @@ pipeline {
                                 chmod 777 ./volumes/
 
                                 export COMPOSE_PROJECT_NAME=au_sg_api_channel_sg_endpoint
-                                python pie.py api.start
+                                python pie.py -R api.start
 
                                 export COMPOSE_PROJECT_NAME=au_sg_api_channel_au_endpoint
 		                        python pie.py api.start
