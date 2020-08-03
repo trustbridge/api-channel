@@ -90,6 +90,8 @@ pipeline {
 
                                 python pie.py api.build
 		                        python pie.py api.start
+
+                                sleep 30s
                             '''
                         }
                     }
