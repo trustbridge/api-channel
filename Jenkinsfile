@@ -66,8 +66,13 @@ pipeline {
 
                             sh '''#!/bin/bash
                                 python3 pie.py -R
-                                python3 pie.py api.build
-                                python3 pie.py api.start
+                                python pie.py api.build
+
+                                export COMPOSE_PROJECT_NAME=au_sg_api_channel_sg_endpoint
+                                python pie.py api.start
+
+                                export COMPOSE_PROJECT_NAME=au_sg_api_channel_au_endpoint
+		                        python pie.py api.start
                             '''
                         }
                     }
@@ -77,7 +82,9 @@ pipeline {
                     steps {
                         dir("${env.DOCKER_BUILD_DIR}/test/api-channel")  {
                             sh '''#!/bin/bash
-                                python3 pie.py api.test
+                                python pie.py test.start
+                                python pie.py test.send_message
+                                python pie.py test.subscribe
                             '''
                         }
                     }
