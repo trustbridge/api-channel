@@ -72,8 +72,8 @@ pipeline {
                                 fi
 
                                 #Setup minio staging location
-                                mkdir -p test/api-channel/docker/volumes/
-                                chmod 777 test/api-channel/docker/volumes/
+                                mkdir -p docker/volumes/
+                                chmod 777 docker/volumes/
 
                                 python pie.py -R
                                 export COMPOSE_PROJECT_NAME=au_sg_api_channel_sg_endpoint
