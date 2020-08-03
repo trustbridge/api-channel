@@ -72,14 +72,8 @@ pipeline {
                                 fi
 
                                 #Setup minio staging location
-                                mkdir -p  "${DOCKER_BUILD_DIR}/test/api-channel/docker/volumes/"
-                                chmod ugo+rwx "${DOCKER_BUILD_DIR}/test/api-channel/docker/volumes/"
-                                chmod o+s "${DOCKER_BUILD_DIR}/test/api-channel/docker/volumes/"
-
-                                ls -la "${DOCKER_BUILD_DIR}/test/api-channel/docker/volumes/"
-
+                                mkdir -p --mode=u+rwx,g+rs,g+wrwx,o+rwx "${DOCKER_BUILD_DIR}/test/api-channel/docker/volumes/"
                                 mkdir -p "${DOCKER_BUILD_DIR}/test/api-channel/docker/volumes/something"
-
                                 ls -la "${DOCKER_BUILD_DIR}/test/api-channel/docker/volumes/"
 
                                 python pie.py -R
