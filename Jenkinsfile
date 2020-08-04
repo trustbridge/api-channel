@@ -48,7 +48,8 @@ pipeline {
 
             when {
                 anyOf {
-                    changeRequest()
+                    // Disable PR Testing
+                    //changeRequest()
                     equals expected: true, actual: params.all_tests
                 }
             }
