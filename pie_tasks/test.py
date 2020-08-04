@@ -65,4 +65,5 @@ def send_message():
         if response.status_code != 200:
             print(f"Failed to send message, status:{response.status_code}, text:{response.text}")
             return
-        print('Message sent')
+        data = response.json()
+        print('Message sent, id:%s' % data['id'])

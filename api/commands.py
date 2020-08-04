@@ -6,6 +6,7 @@ from libtrustbridge.websub import repos
 from libtrustbridge.websub.processors import Processor
 
 from api import use_cases
+from api.repos import ChannelRepo, ChannelQueueRepo
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +28,15 @@ class RunProcessorCommand(Command):
 
     def get_processor(self):
         raise NotImplementedError
+
+
+class RunSendMessageProcessorCommand(RunProcessorCommand):
+    def get_processor(self):
+        config = self.app.config
+        channel_repo = ChannelRepo(config['CHANNEL_REPO_CONF'])
+        channel_queue_repo = ChannelQueueRepo(config['CHANNEL_QUEUE_REPO_CONF'])
+        use_case = use_cases.ProcessMessageUseCase(channel_repo, channel_queue_repo, config['FOREIGN_ENDPOINT_URL'])
+        return Processor(use_case=use_case)
 
 
 class RunCallbackSpreaderProcessorCommand(RunProcessorCommand):

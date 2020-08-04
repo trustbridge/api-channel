@@ -13,6 +13,17 @@ x-services:
       - DATABASE_URI
       - ENDPOINT
       - FOREIGN_ENDPOINT_URL
+      - IGL_CHANNEL_REPO_HOST
+      - IGL_CHANNEL_REPO_PORT
+      - IGL_CHANNEL_REPO_ACCESS_KEY
+      - IGL_CHANNEL_REPO_SECRET_KEY
+      - IGL_CHANNEL_REPO_USE_SSL
+      - IGL_CHANNEL_QUEUE_REPO_HOST
+      - IGL_CHANNEL_QUEUE_REPO_PORT
+      - IGL_CHANNEL_QUEUE_REPO_REGION
+      - IGL_CHANNEL_QUEUE_REPO_ACCESS_KEY
+      - IGL_CHANNEL_QUEUE_REPO_SECRET_KEY
+      - IGL_CHANNEL_QUEUE_REPO_USE_SSL
       - IGL_SUBSCRIPTIONS_REPO_HOST
       - IGL_SUBSCRIPTIONS_REPO_PORT
       - IGL_SUBSCRIPTIONS_REPO_ACCESS_KEY
@@ -81,9 +92,16 @@ services:
       # merge keys don't merge arrays, so we need to repeat elasticmq and minio here
       - elasticmq
       - minio
+      - send_message_processor
       - callback_spreader
       - callback_delivery
+
     command: "python manage.py runserver -h 0.0.0.0"
+    restart: on-failure
+
+  send_message_processor:
+    <<: *base-api
+    command: "python manage.py run_send_message_processor"
     restart: on-failure
 
   callback_spreader:
