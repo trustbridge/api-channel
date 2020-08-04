@@ -30,6 +30,12 @@ pipeline {
             defaultValue: false,
             description: 'Run tests for all components'
         )
+
+        booleanParam(
+            name: 'deploy_commit',
+            defaultValue: false,
+            description: 'Deploy this commit to devnet'
+        )
     }
 
     stages {
@@ -129,19 +135,24 @@ pipeline {
                 }
             }
         }
+
+        stage('Deploy') {
+            when {
+                anyOf {
+                    // Disable branch deploys
+                    equals expected: true, actual: params.deploy_commit
+                }
+            }
+
+            steps {
+                build job: '../cotp-devnet/build-api-channel/master', parameters: [
+                    string(name: 'branchref_apichannel', value: "${GIT_COMMIT}")
+                ]
+            }
+        }
     }
 
     post {
-        success {
-            script {
-                if ( env.BRANCH_NAME == 'master' ) {
-                    build job: '../cotp-devnet/build-api-channel/master', parameters: [
-                        string(name: 'branchref_apichannel', value: "${GIT_COMMIT}")
-                    ]
-                }
-            }
-        }
-
         cleanup {
             cleanWs()
         }
