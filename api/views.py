@@ -17,7 +17,7 @@ from webargs import fields
 from webargs.flaskparser import use_kwargs
 
 from api import use_cases
-from api.models import Message, MessageSchema
+from api.models import Message
 from api.repos import ChannelQueueRepo, ChannelRepo
 from api.use_cases import ReceiveMessageUseCase
 
@@ -52,7 +52,7 @@ def post_message():
     channel_queue_repo = ChannelQueueRepo(current_app.config['CHANNEL_QUEUE_REPO_CONF'])
     use_case = ReceiveMessageUseCase(channel_repo, channel_queue_repo)
     use_case.receive(message)
-    message_data = MessageSchema().dump(message)
+    message_data = message.to_dict()
     return JsonResponse(message_data, status=200)
 
 
@@ -63,8 +63,7 @@ def get_message(id, fields=None):
         channel_repo = ChannelRepo(current_app.config['CHANNEL_REPO_CONF'])
         message = channel_repo.get_message(id)
         if message:
-            message_data = MessageSchema().dump(message)
-            return JsonResponse({'status': message_data['status']}, status=200)
+            return JsonResponse({'status': message.status}, status=200)
     return Response(response="{}", mimetype="application/json")
 
 

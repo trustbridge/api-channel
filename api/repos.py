@@ -5,7 +5,7 @@ from libtrustbridge.repos.elasticmqrepo import ElasticMQRepo
 from libtrustbridge.repos.miniorepo import MinioRepo
 from libtrustbridge.utils import get_retry_time
 
-from api.models import MessageSchema
+from api.models import Message
 
 logger = logging.getLogger(__name__)
 
@@ -20,11 +20,11 @@ class ChannelRepo(MinioRepo):
         except self.client.exceptions.NoSuchKey:
             logger.warning("Message not found, path: %s", path)
             return
-        return MessageSchema().loads(message_json)
+        return Message.from_json(message_json)
 
     def save_message(self, message):
-        message.id = message.id or uuid.uuid4()
-        body = MessageSchema().dumps(message)
+        message.id = message.id or str(uuid.uuid4())
+        body = message.to_json()
         path = self._get_message_path(message.id)
         self.put_object(chunked_path=path, content_body=body)
         return message
