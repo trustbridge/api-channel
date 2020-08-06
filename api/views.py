@@ -176,6 +176,6 @@ def incoming_message():
     data = json.loads(request.data.decode())
     logger.debug("Received message %r", data)
     notifications_repo = NotificationsRepo(current_app.config['NOTIFICATIONS_REPO_CONF'])
-    use_case = use_cases.PublishNewMessageUseCase(current_app.config['ENDPOINT'], notifications_repo)
+    use_case = use_cases.PublishNewMessageUseCase(current_app.config['JURISDICTION'], notifications_repo)
     use_case.publish(data)
     return JsonResponse({'status': 'delivered'}, status=200)

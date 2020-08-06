@@ -32,12 +32,12 @@ def subscribe():
         test_bind_port = env.get('TEST_CALLBACK_SERVER_BIND_HOST_PORT')
         url = f'http://localhost:{bind_port}/messages/subscriptions/by_jurisdiction'
         callback_url = f'http://host.docker.internal:{test_bind_port}/callback'
-        endpoint = env.get('ENDPOINT')
+        jurisdiction = env.get('JURISDICTION')
 
         data = {
             'hub.mode': 'subscribe',
             'hub.callback': callback_url,
-            'hub.topic': endpoint
+            'hub.topic': jurisdiction
         }
         print(f"url: {url}")
         print("data:")

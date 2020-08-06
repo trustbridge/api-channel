@@ -7,7 +7,7 @@ class Config:
     TESTING = config('TESTING', default=False, cast=bool)
 
     SERVICE_NAME = config('SERVICE_NAME', default='api-channel')
-    ENDPOINT = config("ENDPOINT", default='AU')
+    JURISDICTION = config("JURISDICTION", default='AU')
     SERVICE_URL = config("SERVICE_URL", default='http://api-channel')
     FOREIGN_ENDPOINT_URL = config("FOREIGN_ENDPOINT_URL", default='http://foreign-api-channel/incoming/messages')
 
