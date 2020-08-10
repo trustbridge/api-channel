@@ -138,10 +138,7 @@ pipeline {
 
         stage('Deploy') {
             when {
-                anyOf {
-                    // Disable branch deploys
-                    equals expected: true, actual: params.deploy_commit
-                }
+                branch 'master'
             }
 
             steps {
