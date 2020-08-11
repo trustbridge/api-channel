@@ -11,7 +11,7 @@ x-services:
     environment:
       - SERVICE_URL
       - DATABASE_URI
-      - ENDPOINT
+      - JURISDICTION
       - FOREIGN_ENDPOINT_URL
       - IGL_CHANNEL_REPO_HOST
       - IGL_CHANNEL_REPO_PORT
