@@ -126,10 +126,10 @@ class PublishNewMessageUseCase:
         self.notifications_repo = notification_repo
         self.endpoint = endpoint
 
-    def publish(self, message_payload):
+    def publish(self, message: Message):
         job_payload = {
             'topic': f'jurisdiction.{self.endpoint}',
-            'content': message_payload
+            'content': {'id': message.id}
         }
         logger.debug('publish notification %r', job_payload)
         self.notifications_repo.post_job(job_payload)

@@ -1,9 +1,12 @@
+from unittest import mock
+
 import pytest
 from flask import url_for
+from libtrustbridge.websub.repos import NotificationsRepo
 from responses import Response
 
 from api.models import Message, MessageStatus
-from api.use_cases import SendMessageToForeignUseCase, SendMessageFailure, ProcessMessageUseCase
+from api.use_cases import SendMessageToForeignUseCase, SendMessageFailure, ProcessMessageUseCase, PublishNewMessageUseCase
 
 
 class TestSendMessageToForeignUseCase:
@@ -54,3 +57,18 @@ class TestProcessMessageUseCase:
 
         assert len(self.mocked_responses.calls) == 1
         assert self.mocked_responses.calls[0].request.body == b'{"obj": "QmQtYtUS7K1AdKjbuMsmPmPGDLaKL38M5HYwqxW9RKW49n", "predicate": "UN.CEFACT.Trade.CertificateOfOrigin.created", "receiver": "CN", "sender": "AU", "subject": "AU.abn0000000000.XXXX-XXXXX-XXXXX-XXXXXX"}'
+
+
+class TestPublishNewMessageUseCase:
+    def test_use_case__should_send_message_to_notification_queue(self):
+        notifications_repo = mock.create_autospec(NotificationsRepo).return_value
+
+        message = Message(id=24, status=MessageStatus.CONFIRMED, payload={'sender': 'CN'})
+        PublishNewMessageUseCase('AU', notifications_repo).publish(message=message)
+
+        notifications_repo.post_job.assert_called_once_with({
+            'topic': 'jurisdiction.AU',
+            'content': {
+                'id': 24
+            }
+        })
