@@ -30,15 +30,37 @@ class TestPostMessage:
 
 @pytest.mark.usefixtures("client_class", "clean_channel_repo")
 class TestGetMessage:
-    def test_get_message__should_return_empty_dict(self):
+    def test_get_message__when_not_exist_should_return_empty_dict(self):
         response = self.client.get(url_for('views.get_message', id=100))
-        assert response.status_code == 200
+        assert response.status_code == 404
         assert response.json == {}
 
-    def test_get_message_status__when_exist__should_return_delivered(self):
+    def test_get_message__should_return_message_by_id(self):
+        message = self.channel_repo.save_message(Message(payload={'obj': 'test'}))
+        response = self.client.get(url_for('views.get_message', id=message.id))
+        assert response.status_code == 200
+        assert response.json == {'id': message.id, 'payload': {'obj': 'test'}, 'status': 'received'}
+
+    def test_get_message_status__when_exist__should_return_just_status(self):
         message = self.channel_repo.save_message(Message(payload={'obj': 'test'}))
         url = url_for('views.get_message', id=str(message.id))
         response = self.client.get(f'{url}?fields=status')
 
         assert response.status_code == 200
         assert response.json == {'status': 'received'}
+
+
+@pytest.mark.usefixtures("client_class", "clean_channel_repo")
+class TestIncomingMessage:
+    def test_incoming_message__should_be_saved_in_repo_and_notification_sent(self):
+        message_data = {
+            "sender": "AU",
+            "receiver": "CN",
+            "subject": "AU.abn0000000000.XXXX-XXXXX-XXXXX-XXXXXX",
+            "obj": "QmQtYtUS7K1AdKjbuMsmPmPGDLaKL38M5HYwqxW9RKW49n",
+            "predicate": "UN.CEFACT.Trade.CertificateOfOrigin.created"
+        }
+        response = self.client.post(url_for('views.incoming_message'), json=message_data)
+        assert response.status_code == 200
+        assert 'id' in response.json
+        assert self.channel_repo.get_message(response.json['id'])

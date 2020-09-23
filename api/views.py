@@ -59,12 +59,14 @@ def post_message():
 @blueprint.route('/messages/<id>')
 @use_kwargs({'fields': fields.DelimitedList(fields.Str())}, location="querystring")
 def get_message(id, fields=None):
-    if fields == ['status']:
-        channel_repo = ChannelRepo(current_app.config['CHANNEL_REPO_CONF'])
-        message = channel_repo.get_message(id)
-        if message:
-            return JsonResponse({'status': message.status}, status=200)
-    return Response(response="{}", mimetype="application/json")
+    channel_repo = ChannelRepo(current_app.config['CHANNEL_REPO_CONF'])
+    message = channel_repo.get_message(id)
+    if not message:
+        return Response(response="{}", mimetype="application/json", status=404)
+    message_data = message.to_dict()
+    if fields:
+        return JsonResponse({k: v for k,v in message_data.items() if k in fields})
+    return JsonResponse(message_data)
 
 
 class IntentVerificationFailure(Exception):
@@ -172,9 +174,14 @@ blueprint.add_url_rule(
 @blueprint.route('/messages/incoming', methods=['POST'])
 @mimetype('application/json')
 def incoming_message():
-    data = json.loads(request.data.decode())
-    logger.debug("Received message %r", data)
+    message = Message(payload=json.loads(request.data))
+    logger.debug("Received message %r", message.payload)
+    channel_repo = ChannelRepo(current_app.config['CHANNEL_REPO_CONF'])
+    channel_repo.save_message(message)
     notifications_repo = NotificationsRepo(current_app.config['NOTIFICATIONS_REPO_CONF'])
     use_case = use_cases.PublishNewMessageUseCase(current_app.config['JURISDICTION'], notifications_repo)
-    use_case.publish(data)
-    return JsonResponse({'status': 'delivered'}, status=200)
+    use_case.publish(message)
+    return JsonResponse({
+        'status': 'delivered',
+        'id': message.id,
+    }, status=200)
