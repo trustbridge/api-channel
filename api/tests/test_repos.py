@@ -6,7 +6,7 @@ from api.models import Message
 class TestChannelRepo:
     @pytest.fixture(autouse=True)
     def message(self, clean_channel_repo):
-        self.message = Message(payload={"receiver": "AU"})
+        self.message = Message(message={"receiver": "AU"})
         self.repo = clean_channel_repo
 
     def test_save_message__for_new_message__should_save_with_new_id(self):

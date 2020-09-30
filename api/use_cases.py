@@ -32,7 +32,7 @@ class SendMessageToForeignUseCase:
         self.foreign_endpoint = foreign_endpoint
 
     def send(self, message: Message):
-        response = requests.post(url=self.foreign_endpoint, json=message.payload)
+        response = requests.post(url=self.foreign_endpoint, json=message.message)
         if response.status_code == 200:
             message.status = MessageStatus.DELIVERED
             return
