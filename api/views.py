@@ -47,7 +47,7 @@ def index():
 
 @blueprint.route('/messages', methods=['POST'])
 def post_message():
-    message = Message(payload=json.loads(request.data))
+    message = Message(message=json.loads(request.data))
     channel_repo = ChannelRepo(current_app.config['CHANNEL_REPO_CONF'])
     channel_queue_repo = ChannelQueueRepo(current_app.config['CHANNEL_QUEUE_REPO_CONF'])
     use_case = ReceiveMessageUseCase(channel_repo, channel_queue_repo)
@@ -174,8 +174,8 @@ blueprint.add_url_rule(
 @blueprint.route('/messages/incoming', methods=['POST'])
 @mimetype('application/json')
 def incoming_message():
-    message = Message(payload=json.loads(request.data))
-    logger.debug("Received message %r", message.payload)
+    message = Message(message=json.loads(request.data))
+    logger.debug("Received message %r", message.message)
     channel_repo = ChannelRepo(current_app.config['CHANNEL_REPO_CONF'])
     channel_repo.save_message(message)
     notifications_repo = NotificationsRepo(current_app.config['NOTIFICATIONS_REPO_CONF'])

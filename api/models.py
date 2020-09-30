@@ -14,6 +14,6 @@ class MessageStatus(str, enum.Enum):
 @dataclass_json
 @dataclass
 class Message:
-    payload: dict
+    message: dict
     id: str = None
     status: MessageStatus = MessageStatus.RECEIVED

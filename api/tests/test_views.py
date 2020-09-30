@@ -19,7 +19,7 @@ class TestPostMessage:
         assert response.status_code == 200
         data = response.json
         assert data['status'] == 'received'
-        assert data['payload'] == self.message_data
+        assert data['message'] == self.message_data
         assert data['id']
 
         job = self.channel_queue_repo.get_job()
@@ -36,13 +36,13 @@ class TestGetMessage:
         assert response.json == {}
 
     def test_get_message__should_return_message_by_id(self):
-        message = self.channel_repo.save_message(Message(payload={'obj': 'test'}))
+        message = self.channel_repo.save_message(Message(message={'obj': 'test'}))
         response = self.client.get(url_for('views.get_message', id=message.id))
         assert response.status_code == 200
-        assert response.json == {'id': message.id, 'payload': {'obj': 'test'}, 'status': 'received'}
+        assert response.json == {'id': message.id, 'message': {'obj': 'test'}, 'status': 'received'}
 
     def test_get_message_status__when_exist__should_return_just_status(self):
-        message = self.channel_repo.save_message(Message(payload={'obj': 'test'}))
+        message = self.channel_repo.save_message(Message(message={'obj': 'test'}))
         url = url_for('views.get_message', id=str(message.id))
         response = self.client.get(f'{url}?fields=status')
 

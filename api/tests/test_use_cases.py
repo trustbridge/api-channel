@@ -14,7 +14,7 @@ class TestSendMessageToForeignUseCase:
     def setup(self, mocked_responses):
         self.mocked_responses = mocked_responses
         self.endpoint = 'http://foreign_endpoint.com'
-        self.message = Message(payload={"receiver": "AU"})
+        self.message = Message(message={"receiver": "AU"})
 
     def test_send__when_responded_OK__should_set_status_as_delivered(self):
         self.mocked_responses.add(
@@ -63,7 +63,7 @@ class TestPublishNewMessageUseCase:
     def test_use_case__should_send_message_to_notification_queue(self):
         notifications_repo = mock.create_autospec(NotificationsRepo).return_value
 
-        message = Message(id=24, status=MessageStatus.CONFIRMED, payload={'sender': 'CN'})
+        message = Message(id=24, status=MessageStatus.CONFIRMED, message={'sender': 'CN'})
         PublishNewMessageUseCase('AU', notifications_repo).publish(message=message)
 
         notifications_repo.post_job.assert_called_once_with({
